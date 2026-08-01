@@ -72,4 +72,37 @@ public class ClienteRepository {
                 .collect(Collectors.toList());
     }
 
+    // ── UPDATE ──────────────────────────────────────────────────────────────
+
+        // Update é realizado diretamente na instância do objeto.
+        // Como a lista armazena referências, alterações feitas na entidade
+        // são refletidas automaticamente no repositório.
+
+    // ── DELETE (lógico) ─────────────────────────────────────────────────────
+
+    public boolean desativar(String id) {
+        Optional<Cliente> clienteOPT = buscarPorId(id);
+        clienteOPT.ifPresent(c -> c.setAtivo(false));
+        return clienteOPT.isPresent();
+    }
+
+    // ── DELETE (Físico) ─────────────────────────────────────────────────────
+        // Remove da lista
+
+    public boolean remover(String id) {
+        return clientes.removeIf(c -> c.getId().equals(id));
+    }
+
+    // ── CONTAGEM ────────────────────────────────────────────────────────────
+
+    public long contarTotal() { return clientes.size(); }
+    public long contarAtivos() { return clientes.stream().filter(Cliente::isAtivo).count(); }
+    public long contarPorTipo(TipoCliente tipo) {
+        return clientes.stream()
+                .filter(c -> c.getTipo() == tipo)
+                .count();
+    }
+
+
+
 }
