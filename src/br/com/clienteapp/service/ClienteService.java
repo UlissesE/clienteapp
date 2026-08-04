@@ -1,12 +1,16 @@
 package br.com.clienteapp.service;
 
+import br.com.clienteapp.exception.ClienteNaoEncontradoException;
 import br.com.clienteapp.exception.CpfCnpjJaCadastradoException;
+import br.com.clienteapp.model.Cliente;
 import br.com.clienteapp.model.ClientePF;
 import br.com.clienteapp.model.ClientePJ;
 import br.com.clienteapp.repository.ClienteRepository;
 import br.com.clienteapp.util.Validador;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 public class ClienteService {
 
@@ -68,6 +72,63 @@ public class ClienteService {
         return cliente;
     }
 
+    // ── LISTAGENS ────────────────────────────────────────────────────────────
 
+    public List<Cliente> listarTodos() {
+        return repository.listarTodos();
+    }
+
+    public List<Cliente> listarAtivos() {
+        return repository.listarAtivos();
+    }
+
+    public List<Cliente> pesquisarPorNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            return repository.listarAtivos();
+        }
+        return repository.buscarPorNome(nome);
+    }
+
+    // ── BUSCA ────────────────────────────────────────────────────────────────
+
+    public Cliente buscarPorId(String id) {
+        return repository.buscarPorId(id)
+                .orElseThrow(() -> new ClienteNaoEncontradoException(id));
+    }
+
+    // ── ATUALIZAÇÃO ──────────────────────────────────────────────────────────
+
+    public Cliente atualizarContato(
+            String id, String novoEmail, String novoTelefone) {
+
+        Cliente cliente = buscarPorId(id);
+
+        // Verifica se tem usuário com email cadastrado
+        if (novoEmail != null && !novoEmail.isBlank()) {
+            Validador.validarEmail(novoEmail);
+
+            Optional<Cliente> comEmail = repository.buscarPorEmail(novoEmail);
+            if (comEmail.isPresent() && !comEmail.get().getId().equals(id)) {
+                throw new CpfCnpjJaCadastradoException("O email já está em uso. Tente novamente.");
+            }
+            cliente.setEmail(novoEmail);
+        }
+
+        if (novoTelefone != null && novoTelefone.isBlank()) {
+            Validador.validarTelefone(novoTelefone);
+            cliente.setTelefone(novoTelefone);
+        }
+
+        return cliente;
+    }
+
+    // ── DESATIVAÇÃO ──────────────────────────────────────────────────────────
+
+    public void desativarCliente(String id) {
+        boolean desativado = repository.desativar(id);
+        if (!desativado) {
+            throw new ClienteNaoEncontradoException(id);
+        }
+    }
 
 }
