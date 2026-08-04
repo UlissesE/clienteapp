@@ -5,12 +5,13 @@ import br.com.clienteapp.exception.CpfCnpjJaCadastradoException;
 import br.com.clienteapp.model.Cliente;
 import br.com.clienteapp.model.ClientePF;
 import br.com.clienteapp.model.ClientePJ;
+import br.com.clienteapp.model.TipoCliente;
 import br.com.clienteapp.repository.ClienteRepository;
 import br.com.clienteapp.util.Validador;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClienteService {
 
@@ -129,6 +130,45 @@ public class ClienteService {
         if (!desativado) {
             throw new ClienteNaoEncontradoException(id);
         }
+    }
+
+    // ── RELATÓRIOS COM STREAMS ────────────────────────────────────────────────
+
+    // Agrupa clientes por tipo usando Collectors.groupingBy
+    public Map<TipoCliente, Long> contarPorTipo() {
+        return repository.listarTodos().stream()
+                .collect(Collectors.groupingBy(Cliente::getTipo, Collectors.counting()));
+    }
+
+    // Clientes cadastrados num intervalo de datas
+    public List<Cliente> filtrarPorPeriodoCadastro(LocalDate inicio, LocalDate fim) {
+        return repository.listarTodos().stream()
+                .filter(c -> {
+                    LocalDate dataCadastro = c.getDataCadastro().toLocalDate();
+                    return !dataCadastro.isBefore(inicio) && !dataCadastro.isAfter(fim);
+                })
+                .sorted(Comparator.comparing(Cliente::getNome))
+                .collect(Collectors.toList());
+    }
+
+    // Top N clientes por ordem alfabética
+    public List<Cliente> topPorCliente(int qtd) {
+        return repository.listarTodos().stream()
+                .sorted(Comparator.comparing(Cliente::getNome))
+                .limit(qtd)
+                .collect(Collectors.toList());
+    }
+
+    // Estatísticas gerais — Map com resumo para exibição
+
+    public Map<String, Long> estatisticas() {
+        Map<String, Long> stats = new LinkedHashMap<>();
+        stats.put("Total de clientes", repository.contarTotal());
+        stats.put("Clientes ativos", repository.contarAtivos());
+        stats.put("Pessoas Físicas", repository.contarPorTipo(TipoCliente.PESSOA_FISICA));
+        stats.put("Pessoas Jurídicas", repository.contarPorTipo(TipoCliente.PESSOA_JURIDICA));
+        stats.put("Clientes inativos", repository.contarTotal() - repository.contarAtivos());
+        return stats;
     }
 
 }
