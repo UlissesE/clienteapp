@@ -171,4 +171,14 @@ public class ClienteService {
         return stats;
     }
 
+    // Persistência — delega para o repository
+
+    public void salvarDados() {
+        repository.salvarEmArquivo();
+    }
+
+    public void carregarDados() {
+        repository.carregarDeArquivo();
+    }
+
 }

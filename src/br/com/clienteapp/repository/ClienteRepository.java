@@ -5,12 +5,15 @@ import br.com.clienteapp.model.ClientePF;
 import br.com.clienteapp.model.ClientePJ;
 import br.com.clienteapp.model.TipoCliente;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClienteRepository {
 
     private final List<Cliente> clientes = new ArrayList<>();
+
+    private static final String ARQUIVO_DADOS = "clientes.dat";
 
     // ── CREATE ──────────────────────────────────────────────────────────────
     public void salvar(Cliente cliente) {
@@ -103,6 +106,33 @@ public class ClienteRepository {
                 .count();
     }
 
+    // ── PERSISTÊNCIA ────────────────────────────────────────────────────────
 
+    public void salvarEmArquivo() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(
+                new BufferedOutputStream(new FileOutputStream(ARQUIVO_DADOS)))) {
+            oos.writeObject(clientes);
+            System.out.println("Dados salvos em " + ARQUIVO_DADOS);
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar dados: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void carregarDeArquivo() {
+        File arquivo = new File(ARQUIVO_DADOS);
+        if (!arquivo.exists()) {
+            System.out.println("Nenhum arquivo de dados encontrado. Iniciando com lista vazia...");
+            return;
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(
+                new BufferedInputStream(new FileInputStream(ARQUIVO_DADOS)))) {
+            List<Cliente> carregados = (List<Cliente>) ois.readObject();
+            clientes.addAll(carregados);
+            System.out.println(carregados.size() + " cliente(s) carregado(s) com sucesso!");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Erro ao carregar dados: " + e.getMessage());
+        }
+    }
 
 }

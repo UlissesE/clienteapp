@@ -1,11 +1,14 @@
 package br.com.clienteapp.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class Cliente {
+public abstract class Cliente implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private String nome;

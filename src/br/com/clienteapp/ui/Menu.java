@@ -28,6 +28,7 @@ public class Menu {
 
     public void iniciar() {
 
+        service.carregarDados();
         System.out.println("\n════════════════════════════════════════");
         System.out.println("     SISTEMA DE CADASTRO DE CLIENTES    ");
         System.out.println("════════════════════════════════════════\n");
@@ -48,6 +49,8 @@ public class Menu {
                 case 7 -> desativarCliente();
                 case 8 -> exibirEstatisticas();
                 case 0 -> {
+                    service.salvarDados();
+                    System.out.println("Dados salvos com sucesso!");
                     System.out.println("\n👋 Encerrando programa...");
                     executando = false;
                 }
