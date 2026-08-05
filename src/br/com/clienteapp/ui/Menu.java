@@ -245,7 +245,7 @@ public class Menu {
 
     private void exibirEstatisticas() {
         Map<String, Long> stats = service.estatisticas();
-        System.out.println("\\n── ESTATÍSTICAS DO SISTEMA ──");
+        System.out.println("\n── ESTATÍSTICAS DO SISTEMA ──");
         System.out.println("─".repeat(40));
         stats.forEach((chave, valor) ->
                 System.out.printf("  %-25s %d%n", chave + ":", valor));
