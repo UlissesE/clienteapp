@@ -133,8 +133,6 @@ public class ClienteRepository {
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Erro ao carregar dados: " + e.getMessage());
         }
-        System.out.println("Eduardo");
-        System.out.println("Ulisses");
     }
 
 }
